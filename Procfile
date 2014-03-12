@@ -1,1 +1,1 @@
-web python gwbot.py
+web python gwbot.py 1
