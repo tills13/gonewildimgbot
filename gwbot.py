@@ -41,7 +41,7 @@ def draw_text(image, title, top_comment):
 	draw = ImageDraw.Draw(image)
 
 	image_width, image_height = image.size
-	set_text_size(draw, title, top_comment)
+	set_text_size(draw, title, top_comment, image_width, image_height)
 
 	twidth, theight = draw.textsize(title, font = ImageFont.truetype(font_path, title_font_size))
 	stwidth, stheight = draw.textsize(top_comment, font = ImageFont.truetype(font_path, subtitle_font_size))
@@ -64,7 +64,7 @@ def draw_text(image, title, top_comment):
 	draw.text((subtitle_pos_x, subtitle_pos_y), top_comment, font = ImageFont.truetype(font_path, subtitle_font_size), fill = 'white')
 	return image
 
-def set_text_size(draw, title, top_comment):
+def set_text_size(draw, title, top_comment, image_width, image_height):
 	global title_font_size, subtitle_font_size
 
 	orig_font_size = title_font_size
