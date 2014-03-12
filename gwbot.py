@@ -65,7 +65,7 @@ def draw_text(image, title, top_comment):
 	twidth, theight = draw.textsize(title, font = ImageFont.truetype(font_path, title_font_size))
 	stwidth, stheight = draw.textsize(top_comment, font = ImageFont.truetype(font_path, subtitle_font_size))
 
-	print (twidth, theight, stwidth, stheight)
+	#print (twidth, theight, stwidth, stheight)
 
 	vert = random.random() # top or bottom
 	horiz = random.random() # left of right
@@ -112,8 +112,11 @@ def generate_image():
 	f_name = '%s.jpg' % (os.path.splitext(image.filename)[0].strip(string.punctuation + ' '))
 	image.save(f_name)
 
-	uploaded_image = imgur.upload_image(path = os.path.realpath(f_name), title = f_name)
-	twitter.update_status(status = ('%s: %s.jpg' % (f_name, uploaded_image.link)))
+	#uploaded_image = imgur.upload_image(path = os.path.realpath(f_name), title = f_name)
+	#print ('uploaded image at: %s' % uploaded_image.link)
+	photo = open(os.path.realpath(f_name), 'rb')
+	twitter.update_status_with_media(media = photo, status = ('%s: %s' % (f_name, (uploaded_image.link + '.jpg')))
 	os.remove(original_image)
+	os.remove(f_name)
 
 for i in range(int(sys.argv[1])): generate_image()
