@@ -113,7 +113,7 @@ def generate_image():
 	image.save(f_name)
 
 	uploaded_image = imgur.upload_image(path = os.path.realpath(f_name), title = f_name)
-	twitter.update_status(status = ('%s: %s' % (f_name, uploaded_image.link)))
+	twitter.update_status(status = ('%s: %s.jpg' % (f_name, uploaded_image.link)))
 	os.remove(original_image)
 
 for i in range(int(sys.argv[1])): generate_image()
