@@ -5,6 +5,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 from config import config
+#from Image.draw import textsize
 
 post_limit = 500
 font_path = os.path.join('fonts', 'OpenSans-Light.ttf')
@@ -21,28 +22,50 @@ reddit = praw.Reddit("idgaf")
 
 def fetch_gonewild_post():
 	print('fetching gonewild post')
-	li = []
 	posts = reddit.get_subreddit('gonewild').get_top_from_month(limit = post_limit)
-	for post in posts: li.append(post)
-	return random.choice(li)
+
+	return random.choice([post for post in posts])
 
 def fetch_earthporn_image():
 	print('fetching earthporn image')
 	posts = reddit.get_subreddit('earthporn').get_top_from_month(limit = post_limit)
 	post = random.choice([post for post in posts if 'imgur' in post.url]) 
-	imgur_url = get_imgur_url(post.url)
-	return imgur.get_image(imgur_url).download()
+
+	return imgur.get_image(get_imgur_url(post.url)).download()
 
 def get_imgur_url(full_url):
 	return re.match(r'https?://(?:(?:i|www)\.)?imgur.com/(?:a/)?([^\.]*)(\?.*)?', full_url).group(1)
 
-def upload_image(image):
-	uploaded_image = imgur.upload_image(image)
-
 def draw_text(image, title, top_comment):
 	global title_font_size, subtitle_font_size, padding_vert2
 	draw = ImageDraw.Draw(image)
+
 	image_width, image_height = image.size
+	set_text_size(title, top_comment)
+
+	twidth, theight = draw.textsize(title, font = ImageFont.truetype(font_path, title_font_size))
+	stwidth, stheight = draw.textsize(top_comment, font = ImageFont.truetype(font_path, subtitle_font_size))
+
+	if random.random() > 0.5: # top
+		title_pos_y = padding_vert
+		subtitle_pos_y = title_pos_y + theight + padding_vert2
+	else: # bottom
+		subtitle_pos_y = image_height - padding_vert - stheight
+		title_pos_y = subtitle_pos_y - padding_vert2 - theight
+
+	if random.random() > 0.5: # left
+		title_pos_x, subtitle_pos_x = padding_horiz, padding_horiz
+	else: # right
+		title_pos_x = image_width - padding_horiz - twidth
+		subtitle_pos_x = image_width - padding_horiz - stwidth
+
+	draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, title, top_comment)
+	draw.text((title_pos_x, title_pos_y), title, font = ImageFont.truetype(font_path, title_font_size), fill = 'white')
+	draw.text((subtitle_pos_x, subtitle_pos_y), top_comment, font = ImageFont.truetype(font_path, subtitle_font_size), fill = 'white')
+	return image
+
+def set_text_size(draw, title, top_comment):
+	global title_font_size, subtitle_font_size
 
 	orig_font_size = title_font_size
 	twidth, theight = draw.textsize(title, font = ImageFont.truetype(font_path, orig_font_size)) # base values
@@ -61,32 +84,6 @@ def draw_text(image, title, top_comment):
 		while draw.textsize(top_comment, font = ImageFont.truetype(font_path, subtitle_font_size))[0] > (image_width - 2 * padding_horiz): 
 			subtitle_font_size += 1
 			if subtitle_font_size > 100: break
-
-	twidth, theight = draw.textsize(title, font = ImageFont.truetype(font_path, title_font_size))
-	stwidth, stheight = draw.textsize(top_comment, font = ImageFont.truetype(font_path, subtitle_font_size))
-
-	#print (twidth, theight, stwidth, stheight)
-
-	vert = random.random() # top or bottom
-	horiz = random.random() # left of right
-
-	if vert > 0.5: # top
-		title_pos_y = padding_vert
-		subtitle_pos_y = title_pos_y + theight + padding_vert2
-	else: # bottom
-		subtitle_pos_y = image_height - padding_vert - stheight
-		title_pos_y = subtitle_pos_y - padding_vert2 - theight
-
-	if horiz > 0.5: # left
-		title_pos_x, subtitle_pos_x = padding_horiz, padding_horiz
-	else: # right
-		title_pos_x = image_width - padding_horiz - twidth
-		subtitle_pos_x = image_width - padding_horiz - stwidth
-
-	draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, title, top_comment)
-	draw.text((title_pos_x, title_pos_y), title, font = ImageFont.truetype(font_path, title_font_size), fill = 'white')
-	draw.text((subtitle_pos_x, subtitle_pos_y), top_comment, font = ImageFont.truetype(font_path, subtitle_font_size), fill = 'white')
-	return image
 
 def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, title, subtitle):
 	# thin border
@@ -112,9 +109,9 @@ def generate_image():
 	f_name = '%s.jpg' % (os.path.splitext(image.filename)[0].strip(string.punctuation + ' '))
 	image.save(f_name)
 
-	#uploaded_image = imgur.upload_image(path = os.path.realpath(f_name), title = f_name)
-	#print ('uploaded image at: %s' % uploaded_image.link)
+	uploaded_image = imgur.upload_image(path = os.path.realpath(f_name), title = f_name)
+	print ('uploaded image at: %s' % uploaded_image.link)
 	photo = open(os.path.realpath(f_name), 'rb')
-	twitter.update_status_with_media(media = photo, status = ('%s' % f_name))
+	twitter.update_status_with_media(media = photo, status = ('%s [imgur: %s]' % (f_name, uploaded_image.link)))
 
 for i in range(int(sys.argv[1])): generate_image()
