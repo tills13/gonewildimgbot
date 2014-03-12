@@ -117,6 +117,6 @@ def generate_image():
 	photo = open(os.path.realpath(f_name), 'rb')
 	twitter.update_status_with_media(media = photo, status = ('%s: %s' % (f_name, (uploaded_image.link + '.jpg')))
 	os.remove(original_image)
-	os.remove(f_name)
+	os.remove(photo)
 
 for i in range(int(sys.argv[1])): generate_image()
