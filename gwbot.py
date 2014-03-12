@@ -31,7 +31,7 @@ def fetch_earthporn_image():
 	posts = reddit.get_subreddit('earthporn').get_top_from_month(limit = post_limit)
 	post = random.choice([post for post in posts if 'imgur' in post.url]) 
 
-	return imgur.get_image(get_imgur_url(post.url)).download()
+	return imgur.get_image(get_imgur_url(post.url)).download(), post.title
 
 def get_imgur_url(full_url):
 	return re.match(r'https?://(?:(?:i|www)\.)?imgur.com/(?:a/)?([^\.]*)(\?.*)?', full_url).group(1)
@@ -98,7 +98,7 @@ def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, 
 
 def generate_image():
 	post = fetch_gonewild_post()
-	original_image = fetch_earthporn_image()
+	original_image, original_title = fetch_earthporn_image()
 	image = Image.open(original_image)
 
 	title = post.title
@@ -112,6 +112,6 @@ def generate_image():
 	uploaded_image = imgur.upload_image(path = os.path.realpath(f_name), title = f_name)
 	print ('uploaded image at: %s' % uploaded_image.link)
 	photo = open(os.path.realpath(f_name), 'rb')
-	twitter.update_status_with_media(media = photo, status = ('%s [imgur: %s]' % (f_name, uploaded_image.link)))
+	twitter.update_status_with_media(media = photo, status = ('%s [imgur: %s]' % (original_title[1:50], uploaded_image.link)))
 
 for i in range(int(sys.argv[1])): generate_image()
