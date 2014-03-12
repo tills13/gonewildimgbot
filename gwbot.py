@@ -5,7 +5,6 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 from config import config
-from os.path import basename
 
 post_limit = 500
 font_path = os.path.join('fonts', 'OpenSans-Light.ttf')
