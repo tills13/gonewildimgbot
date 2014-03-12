@@ -112,6 +112,6 @@ def generate_image():
 	uploaded_image = imgur.upload_image(path = os.path.realpath(f_name), title = f_name)
 	print ('uploaded image at: %s' % uploaded_image.link)
 	photo = open(os.path.realpath(f_name), 'rb')
-	twitter.update_status_with_media(media = photo, status = ('%s [imgur: %s]' % (original_title[:140 - len(uploaded_image.link) - 10], uploaded_image.link)))
+	twitter.update_status_with_media(media = photo, status = ('%s [larger: %s]' % (original_title[:min(string(original_title, '[',100 - len(uploaded_image.link) - 10)], uploaded_image.link)))
 
 for i in range(int(sys.argv[1])): generate_image()
