@@ -51,6 +51,7 @@ def draw_text(image, title, top_comment):
 
 	twidth, theight = draw.textsize(title, font = ImageFont.truetype(font_path, title_font_size))
 	stwidth, stheight = draw.textsize(top_comment, font = ImageFont.truetype(font_path, subtitle_font_size))
+	if '[' in title or ']' in title: padding_vert2 = 50
 
 	if random.random() > 0.5: # top
 		title_pos_y = padding_vert
