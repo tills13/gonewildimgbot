@@ -26,12 +26,20 @@ def fetch_gonewild_post():
 
 	return random.choice([post for post in posts])
 
-def fetch_earthporn_image():
-	print('fetching earthporn image')
-	posts = reddit.get_subreddit('earthporn').get_top_from_month(limit = post_limit)
-	post = random.choice([post for post in posts if 'imgur' in post.url]) 
+def fetch_image():
+	print('fetching image')
+	posts = fetch_earthporn_posts().append(fetch_spaceporn_posts())
+	post = random.choice(posts)
 
 	return imgur.get_image(get_imgur_url(post.url)).download(), post.title
+
+def fetch_earthporn_posts():
+	posts = reddit.get_subreddit('earthporn').get_top_from_month(limit = post_limit)
+	return [post for post in posts if 'imgur' in post.url]
+
+def fetch_spaceporn_posts():
+	posts = reddit.get_subreddit('spaceporn').get_top_from_month(limit = post_limit)
+	return [post for post in posts if 'imgur' in post.url] 
 
 def get_imgur_url(full_url):
 	return re.match(r'https?://(?:(?:i|www)\.)?imgur.com/(?:a/)?([^\.]*)(\?.*)?', full_url).group(1)
@@ -99,7 +107,7 @@ def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, 
 def generate_image():
 	try:
 		post = fetch_gonewild_post()
-		original_image, original_title = fetch_earthporn_image()
+		original_image, original_title = fetch_image()
 		image = Image.open(original_image)
 
 		title = post.title
