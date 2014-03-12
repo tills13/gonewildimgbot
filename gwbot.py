@@ -31,7 +31,6 @@ def fetch_image():
 	post = fetch_earthporn_post() if random.random() > 0.5 else fetch_spaceporn_post()
 	return imgur.get_image(get_imgur_url(post.url)).download(), post.title
 
-
 def fetch_earthporn_post():
 	posts = reddit.get_subreddit('earthporn').get_top_from_month(limit = post_limit)
 	return random.choice([post for post in posts if 'imgur' in post.url])
@@ -103,7 +102,7 @@ def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, 
 	draw.text((subtitle_pos_x - 1, subtitle_pos_y - 1), subtitle, font = ImageFont.truetype(font_path, subtitle_font_size), fill='black')
 	draw.text((subtitle_pos_x + 1, subtitle_pos_y + 1), subtitle, font = ImageFont.truetype(font_path, subtitle_font_size), fill='black')
 
-def generate_image()
+def generate_image():
 	post = fetch_gonewild_post()
 	original_image, original_title = fetch_image()
 	image = Image.open(original_image)
