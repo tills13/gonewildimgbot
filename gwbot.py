@@ -93,7 +93,11 @@ def set_text_size(draw, title, top_comment, image_width, image_height):
 			if subtitle_font_size > 100: break
 
 def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, title, subtitle):
+<<<<<<< HEAD
 	# thick border
+=======
+	# thin border
+>>>>>>> 093385da61204ceb0c226a04c7ad5597c650052e
 	draw.text((title_pos_x - 1, title_pos_y - 1), title, font = ImageFont.truetype(font_path, title_font_size), fill='black')
 	draw.text((title_pos_x + 1, title_pos_y - 1), title, font = ImageFont.truetype(font_path, title_font_size), fill='black')
 	draw.text((title_pos_x - 1, title_pos_y - 1), title, font = ImageFont.truetype(font_path, title_font_size), fill='black')
