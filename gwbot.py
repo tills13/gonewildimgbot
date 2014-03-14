@@ -22,7 +22,7 @@ reddit = praw.Reddit("idgaf")
 
 def fetch_gonewild_post():
 	print('fetching gonewild post')
-	posts = reddit.get_subreddit('gonewild').get_top_from_month(limit = post_limit)
+	posts = reddit.get_subreddit('gonewild').get_top_from_week(limit = post_limit)
 
 	return random.choice([post for post in posts])
 
