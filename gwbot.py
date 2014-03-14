@@ -8,7 +8,7 @@ from config import config
 #from Image.draw import textsize
 
 post_limit = 500
-font_path = os.path.join('fonts', 'OpenSans-Light.ttf')
+font_path = os.path.join('fonts', 'OpenSans-Normal.ttf')
 title_font_size = 90
 subtitle_font_size = 60
 
