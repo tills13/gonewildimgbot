@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *.py[cod]
 
 # C extensions
@@ -30,4 +31,5 @@ nosetests.xml
 # Translations
 *.mo
 
-config.py
+venv
+config.*
