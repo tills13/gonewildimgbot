@@ -116,7 +116,7 @@ def get_top_comment(post):
 		print '\t >>>>> no comments on post; exiting'
 		sys.exit()
 
-	return random.choice([comment for comment in comments if comment.author != pauthor])
+	return random.choice([comment for comment in comments if comment.author != pauthor and comment.body != '[deleted]'])
 
 def generate_image():
 	post = fetch_gonewild_post()
