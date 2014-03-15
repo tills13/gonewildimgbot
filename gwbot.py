@@ -1,9 +1,9 @@
 import praw, pyimgur, re, os, random, sys, string
 
 from twython import Twython
-#from PIL import Image
-#from PIL import ImageDraw
-#from PIL import ImageFont
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 from config import config
 #from Image.draw import textsize
 
@@ -118,7 +118,7 @@ def get_top_comment(post):
 		sys.exit()
 
 	return random.choice([comment for comment in comments if comment.author != pauthor])
-	
+
 def generate_image():
 	post = fetch_gonewild_post()
 	original_image, original_title = fetch_image()
