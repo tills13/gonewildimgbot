@@ -74,7 +74,7 @@ def draw_text(image, title, top_comment):
 def set_padding_vert2(title):
 	# (){}[]gypqj
 	global padding_vert2
-	if set(title).intersection(set(list('(){}[]gypqj'))): padding_vert2 = 50
+	if set(title).intersection(set(list('(){}[]gypqj'))): padding_vert2 = 35
 
 def set_text_size(draw, title, top_comment, image_width, image_height):
 	global title_font_size, subtitle_font_size
@@ -111,19 +111,17 @@ def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, 
 def generate_image():
 	post = fetch_gonewild_post()
 	original_image, original_title = fetch_image()
-	image = Image.open(original_image)
-
 	title = post.title
 	top_comment = post.comments[0].body
 
-	image = draw_text(image, title, top_comment)
-	
-	f_name = '%s.jpg' % (os.path.splitext(image.filename)[0].strip(string.punctuation + ' '))
+	image = draw_text(Image.open(original_image), title, top_comment)
+	f_name = 'images\%s.jpg' % (os.path.splitext(image.filename)[0].strip(string.punctuation + ' '))
 	image.save(f_name)
+	os.remove(original_image)
 
 	uploaded_image = imgur.upload_image(path = os.path.realpath(f_name), title = f_name)
 	print ('uploaded image at: %s' % uploaded_image.link)
-	photo = open(os.path.realpath(f_name), 'rb')
-	twitter.update_status_with_media(media = photo, status = ('%s [larger: %s]' % (original_title[:min(string.find(original_title, '['),100 - len(uploaded_image.link) - 10)], uploaded_image.link)))
+	with open(os.path.realpath(f_name), 'rb') as photo:
+		twitter.update_status_with_media(media = photo, status = ('%s [larger: %s]' % (original_title[:min(string.find(original_title, '['),100 - len(uploaded_image.link) - 10)], uploaded_image.link)))
 
 for i in range(int(sys.argv[1])): generate_image()
