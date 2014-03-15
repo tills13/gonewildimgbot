@@ -123,7 +123,7 @@ def generate_image():
 	post = fetch_gonewild_post()
 	original_image, original_title = fetch_image()
 	title = post.title
-	top_comment = get_top_comment(post) # slow as shit 'cause lazy objects
+	top_comment = get_top_comment(post).body # slow as shit 'cause lazy objects
 
 	image = draw_text(Image.open(original_image), title, top_comment)
 	f_name = 'images\%s.jpg' % (os.path.splitext(image.filename)[0].strip(string.punctuation + ' '))
