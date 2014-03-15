@@ -1,2 +1,5 @@
 venv
+
 .gitignore
+
+config.py
