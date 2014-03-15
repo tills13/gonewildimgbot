@@ -5,7 +5,6 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 from config import config
-#from Image.draw import textsize
 
 post_limit = 500
 font_path = os.path.join('fonts', 'OpenSans-Regular.ttf')
