@@ -51,7 +51,7 @@ def draw_text(image, title, top_comment):
 
 	twidth, theight = draw.textsize(title, font = ImageFont.truetype(font_path, title_font_size))
 	stwidth, stheight = draw.textsize(top_comment, font = ImageFont.truetype(font_path, subtitle_font_size))
-	if '[' in title or ']' in title: padding_vert2 = 50
+	set_padding_vert2(title)
 
 	if random.random() > 0.5: # top
 		title_pos_y = padding_vert
@@ -70,6 +70,11 @@ def draw_text(image, title, top_comment):
 	draw.text((title_pos_x, title_pos_y), title, font = ImageFont.truetype(font_path, title_font_size), fill = 'white')
 	draw.text((subtitle_pos_x, subtitle_pos_y), top_comment, font = ImageFont.truetype(font_path, subtitle_font_size), fill = 'white')
 	return image
+
+def set_padding_vert2(title):
+	# (){}[]gypqj
+	global padding_vert2
+	if set(title).intersection(set(list('(){}[]gypqj'))): padding_vert2 = 50
 
 def set_text_size(draw, title, top_comment, image_width, image_height):
 	global title_font_size, subtitle_font_size
