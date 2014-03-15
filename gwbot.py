@@ -1,9 +1,9 @@
 import praw, pyimgur, re, os, random, sys, string
 
 from twython import Twython
-from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
+#from PIL import Image
+#from PIL import ImageDraw
+#from PIL import ImageFont
 from config import config
 #from Image.draw import textsize
 
@@ -108,11 +108,22 @@ def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, 
 	draw.text((subtitle_pos_x - 1, subtitle_pos_y - 1), subtitle, font = ImageFont.truetype(font_path, subtitle_font_size), fill='black')
 	draw.text((subtitle_pos_x + 1, subtitle_pos_y + 1), subtitle, font = ImageFont.truetype(font_path, subtitle_font_size), fill='black')
 
+
+def get_top_comment(post):
+	pauthor = post.author
+	comments = post.comments
+
+	if (len(comments) == 0):
+		print '\t >>>>> no comments on post; exiting'
+		sys.exit()
+
+	return random.choice([comment for comment in comments if comment.author != pauthor])
+	
 def generate_image():
 	post = fetch_gonewild_post()
 	original_image, original_title = fetch_image()
 	title = post.title
-	top_comment = post.comments[0].body
+	top_comment = get_top_comment(post) # slow as shit 'cause lazy objects
 
 	image = draw_text(Image.open(original_image), title, top_comment)
 	f_name = 'images\%s.jpg' % (os.path.splitext(image.filename)[0].strip(string.punctuation + ' '))
