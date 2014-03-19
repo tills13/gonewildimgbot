@@ -109,7 +109,7 @@ def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, 
 	draw.text((subtitle_pos_x + 1, subtitle_pos_y + 1), subtitle, font = ImageFont.truetype(font_path, subtitle_font_size), fill='black')
 
 
-def get_top_comment(post):
+def get_random_comment(post):
 	pauthor = post.author
 	comments = post.comments
 
@@ -122,16 +122,16 @@ def get_top_comment(post):
 def generate_image():
 	post = fetch_gonewild_post()
 	original_image, original_title = fetch_image()
-	title = post.title
-	top_comment = get_top_comment(post).body # slow as shit 'cause lazy objects
+	post_title = post.title
+	top_comment = get_random_comment(post).body # slow as shit 'cause lazy objects
 
-	image = draw_text(Image.open(original_image), title, top_comment)
+	image = draw_text(Image.open(original_image), post_title, top_comment)
 	f_name = 'images\%s.jpg' % (os.path.splitext(image.filename)[0].strip(string.punctuation + ' '))
 	image.save(f_name)
 	os.remove(original_image)
 
 	uploaded_image = imgur.upload_image(path = os.path.realpath(f_name), title = f_name)
-	print ('uploaded image at: %s' % uploaded_image.link)
+	print ('from: redd.it/%s, uploaded image at: %s' % (post.name.split("_")[1], uploaded_image.link))
 	with open(os.path.realpath(f_name), 'rb') as photo:
 		twitter.update_status_with_media(media = photo, status = ('%s [larger: %s]' % (original_title[:min(string.find(original_title, '['),100 - len(uploaded_image.link) - 10)], uploaded_image.link)))
 

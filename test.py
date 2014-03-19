@@ -1,5 +1,6 @@
-def set_padding_vert2(title):
-	# (){}[]gypqj
-	if set(title).intersection(set(list('(){}[]gypqj'))): print 'asdasd'
+import praw
 
-set_padding_vert2('testin')
+reddit = praw.Reddit("asdklj")
+
+for post in reddit.get_subreddit('gonewild').get_top_from_week(limit = 1):
+	print ('from: redd.it/%s, uploaded image at: %s' % (post.name.split("_")[1], "sdlkas"))
