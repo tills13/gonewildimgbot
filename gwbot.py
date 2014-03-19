@@ -5,7 +5,6 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 from config import config
-#from Image.draw import textsize
 
 post_limit = 500
 font_path = os.path.join('fonts', 'OpenSans-Regular.ttf')
@@ -117,7 +116,7 @@ def get_random_comment(post):
 		print '\t >>>>> no comments on post; exiting'
 		sys.exit()
 
-	return random.choice([comment for comment in comments if comment.author != pauthor])
+	return random.choice([comment for comment in comments if comment.author != pauthor and comment.body != '[deleted]'])
 
 def generate_image():
 	post = fetch_gonewild_post()
