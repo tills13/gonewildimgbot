@@ -14,13 +14,6 @@ padding_vert = 30
 padding_vert2 = 30
 padding_horiz = 30
 
-environ["twitter_app_key"] = "iLMVoNLQZBUrt7mjwfZMQ"
-environ["twitter_app_secret"] = "NDbXTzkWiHrG59gL1zMVosU4AzhUNhlH4qyK5vYNk"
-environ["twitter_oauth_token"] = "2384365692-VKnymNfB6wGhBps9obtM4yTxFiJa95JMWDMQYcc"
-environ["twitter_oauth_token_secret"] = "kP4kwJk6XC2dm9y1HCD3a2JcRLbhPJOpUEGqwlipydkET"
-environ["imgur_client_id"] = "21126a4485580a8"
-environ["imgur_client_secret"] = "e22520024677935ca788bc1525318f23b128c047"
-
 def login_to_twitter():
 	twitter = Twython(environ["twitter_app_key"], environ["twitter_app_secret"], environ["twitter_oauth_token"], environ["twitter_oauth_token_secret"])
 	return twitter
@@ -42,9 +35,9 @@ def upload_to_imgur(image_path):
 def upload_to_twitter(image, status):
 	print ("uploading to twitter...")
 
-	media_id = twitter.upload_media(media=image)['media_id']
+	media_id = twitter.upload_media(media=image)['media_id_string']
 	print (media_id)
-	twitter.update_status(media_ids = [media_id], status = status)
+	twitter.update_status(media_ids = media_id, status = status)
 
 	image.close()
 
@@ -69,6 +62,8 @@ def get_random_comment(post):
 	if (len(comments) == 0): exit("\t >>>>> no comments on post; exiting")
 
 	return random.choice([comment for comment in comments if comment.author != pauthor and comment.body != '[deleted]'])
+
+#==============
 
 def draw_text(image, title, top_comment):
 	global title_font_size, subtitle_font_size, padding_vert2
@@ -135,6 +130,8 @@ def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, 
 	draw.text((subtitle_pos_x + 1, subtitle_pos_y - 1), subtitle, font = ImageFont.truetype(font_path, subtitle_font_size), fill='black')
 	draw.text((subtitle_pos_x - 1, subtitle_pos_y - 1), subtitle, font = ImageFont.truetype(font_path, subtitle_font_size), fill='black')
 	draw.text((subtitle_pos_x + 1, subtitle_pos_y + 1), subtitle, font = ImageFont.truetype(font_path, subtitle_font_size), fill='black')
+
+#==============
 
 def generate_image():
 	gw_post = fetch_post('gonewild', False)
