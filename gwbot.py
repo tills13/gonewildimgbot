@@ -140,6 +140,7 @@ def generate_image():
 
 	image = draw_text(original_image, gw_post.title, top_comment)
 	f_name = "images%s%s.jpg" % (os.sep,gw_post.name.split("_")[1])
+	os.mkdir("images")
 	image.save(f_name)
 	
 	uploaded_image = upload_to_imgur(os.path.realpath(f_name))
