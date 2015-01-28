@@ -146,6 +146,7 @@ def generate_image():
 	upload_to_twitter(open(os.path.realpath(f_name), 'rb'),
 					  "%s [larger: %s]" % (original_title[:min(original_title.find('['),100 - len(uploaded_image['link']) - 10)], uploaded_image['link']))	
 
+	os.remove(os.path.realpath(f_name))
 	print ('from: redd.it/%s, uploaded image at: %s' % (gw_post.name.split("_")[1], uploaded_image['link']))
 
 twitter = login_to_twitter()
