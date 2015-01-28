@@ -1,6 +1,2 @@
-.DS_Store
-venv
 .gitignore
-config.py
-config.pyc
-__pycache__
+images

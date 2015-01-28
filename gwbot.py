@@ -1,10 +1,9 @@
-import praw, pyimgur, re, os, random, sys, string
+import praw, re, os, io, random, string, imgurpython, urllib.request
 
 from twython import Twython
-from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
-from config import config
+from PIL import Image,ImageDraw,ImageFont
+from sys import exit,argv
+from os import environ
 
 post_limit = 500
 font_path = os.path.join('fonts', 'OpenSans-Regular.ttf')
@@ -15,31 +14,61 @@ padding_vert = 30
 padding_vert2 = 30
 padding_horiz = 30
 
-twitter = Twython(config['twitter_app_key'], config['twitter_app_secret'], config['twitter_oauth_token_key'], config['twitter_oauth_token_secret'])
-imgur = pyimgur.Imgur(config['imgur_id'])
-reddit = praw.Reddit("idgaf")
+environ["twitter_app_key"] = "iLMVoNLQZBUrt7mjwfZMQ"
+environ["twitter_app_secret"] = "NDbXTzkWiHrG59gL1zMVosU4AzhUNhlH4qyK5vYNk"
+environ["twitter_oauth_token"] = "2384365692-VKnymNfB6wGhBps9obtM4yTxFiJa95JMWDMQYcc"
+environ["twitter_oauth_token_secret"] = "kP4kwJk6XC2dm9y1HCD3a2JcRLbhPJOpUEGqwlipydkET"
+environ["imgur_client_id"] = "21126a4485580a8"
+environ["imgur_client_secret"] = "e22520024677935ca788bc1525318f23b128c047"
 
-def fetch_gonewild_post():
-	print('fetching gonewild post')
-	posts = reddit.get_subreddit('gonewild').get_top_from_week(limit = post_limit)
+def login_to_twitter():
+	twitter = Twython(environ["twitter_app_key"], environ["twitter_app_secret"], environ["twitter_oauth_token"], environ["twitter_oauth_token_secret"])
+	return twitter
 
-	return random.choice([post for post in posts])
+def login_to_reddit():
+	reddit = praw.Reddit(user_agent="ayyyy lmaooo")
+	return reddit
 
-def fetch_image():
-	print('fetching image')
-	post = fetch_earthporn_post() if random.random() > 0.5 else fetch_spaceporn_post()
-	return imgur.get_image(get_imgur_url(post.url)).download(), post.title
+def login_to_imgur():
+	imgur = imgurpython.ImgurClient(environ['imgur_client_id'],environ['imgur_client_secret'])
+	return imgur
 
-def fetch_earthporn_post():
-	posts = reddit.get_subreddit('earthporn').get_top_from_month(limit = post_limit)
-	return random.choice([post for post in posts if 'imgur' in post.url])
+#==============
 
-def fetch_spaceporn_post():
-	posts = reddit.get_subreddit('spaceporn').get_top_from_month(limit = post_limit)
-	return random.choice([post for post in posts if 'imgur' in post.url])
+def upload_to_imgur(image_path):
+	print ("uploading to imgur...")
+	return imgur.upload_from_path(image_path)
 
-def get_imgur_url(full_url):
-	return re.match(r'https?://(?:(?:i|www)\.)?imgur.com/(?:a/)?([^\.]*)(\?.*)?', full_url).group(1)
+def upload_to_twitter(image, status):
+	print ("uploading to twitter...")
+
+	media_id = twitter.upload_media(media=image)['media_id']
+	print (media_id)
+	twitter.update_status(media_ids = [media_id], status = status)
+
+	image.close()
+
+#==============
+
+def fetch_post(subreddit, require_imgur):
+	print ("fetching %s post" % subreddit)
+	posts = reddit.get_subreddit(subreddit).get_top_from_week(limit = post_limit)
+	return random.choice([post for post in posts if (True if not require_imgur else ('imgur' in post.url))])
+
+def fetch_image_and_title():
+	post = fetch_post(("earthporn" if (random.random() > 0.5) else "spaceporn"), True)
+	if not post.url.endswith((".png",".jpeg",".jpg")): post.url += ".jpg"
+	print ("fetching %s" % post.url)
+
+	return Image.open(io.BytesIO(urllib.request.urlopen(post.url).read())), post.title
+
+def get_random_comment(post):
+	pauthor = post.author
+	comments = post.comments
+
+	if (len(comments) == 0): exit("\t >>>>> no comments on post; exiting")
+
+	return random.choice([comment for comment in comments if comment.author != pauthor and comment.body != '[deleted]'])
 
 def draw_text(image, title, top_comment):
 	global title_font_size, subtitle_font_size, padding_vert2
@@ -68,6 +97,7 @@ def draw_text(image, title, top_comment):
 	draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, title, top_comment)
 	draw.text((title_pos_x, title_pos_y), title, font = ImageFont.truetype(font_path, title_font_size), fill = 'white')
 	draw.text((subtitle_pos_x, subtitle_pos_y), top_comment, font = ImageFont.truetype(font_path, subtitle_font_size), fill = 'white')
+
 	return image
 
 def set_padding_vert2(title):
@@ -96,8 +126,7 @@ def set_text_size(draw, title, top_comment, image_width, image_height):
 			subtitle_font_size += 1
 			if subtitle_font_size > 100: break
 
-def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, title, subtitle):
-	# thick border
+def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, title, subtitle): # thick border
 	draw.text((title_pos_x - 1, title_pos_y - 1), title, font = ImageFont.truetype(font_path, title_font_size), fill='black')
 	draw.text((title_pos_x + 1, title_pos_y - 1), title, font = ImageFont.truetype(font_path, title_font_size), fill='black')
 	draw.text((title_pos_x - 1, title_pos_y - 1), title, font = ImageFont.truetype(font_path, title_font_size), fill='black')
@@ -107,31 +136,23 @@ def draw_stroke(draw, title_pos_x, title_pos_y, subtitle_pos_x, subtitle_pos_y, 
 	draw.text((subtitle_pos_x - 1, subtitle_pos_y - 1), subtitle, font = ImageFont.truetype(font_path, subtitle_font_size), fill='black')
 	draw.text((subtitle_pos_x + 1, subtitle_pos_y + 1), subtitle, font = ImageFont.truetype(font_path, subtitle_font_size), fill='black')
 
-
-def get_random_comment(post):
-	pauthor = post.author
-	comments = post.comments
-
-	if (len(comments) == 0):
-		print '\t >>>>> no comments on post; exiting'
-		sys.exit()
-
-	return random.choice([comment for comment in comments if comment.author != pauthor and comment.body != '[deleted]'])
-
 def generate_image():
-	post = fetch_gonewild_post()
-	original_image, original_title = fetch_image()
-	post_title = post.title
-	top_comment = get_random_comment(post).body # slow as shit 'cause lazy objects
+	gw_post = fetch_post('gonewild', False)
+	original_image, original_title = fetch_image_and_title()
+	top_comment = get_random_comment(gw_post).body # slow as shit 'cause lazy objects
 
-	image = draw_text(Image.open(original_image), post_title, top_comment)
-	f_name = 'images\%s.jpg' % (os.path.splitext(image.filename)[0].strip(string.punctuation + ' '))
+	image = draw_text(original_image, gw_post.title, top_comment)
+	f_name = "images%s%s.jpg" % (os.sep,gw_post.name.split("_")[1])
 	image.save(f_name)
-	os.remove(original_image)
+	
+	uploaded_image = upload_to_imgur(os.path.realpath(f_name))
+	upload_to_twitter(open(os.path.realpath(f_name), 'rb'),
+					  "%s [larger: %s]" % (original_title[:min(original_title.find('['),100 - len(uploaded_image['link']) - 10)], uploaded_image['link']))	
 
-	uploaded_image = imgur.upload_image(path = os.path.realpath(f_name), title = f_name)
-	print ('from: redd.it/%s, uploaded image at: %s' % (post.name.split("_")[1], uploaded_image.link))
-	with open(os.path.realpath(f_name), 'rb') as photo:
-		twitter.update_status_with_media(media = photo, status = ('%s [larger: %s]' % (original_title[:min(string.find(original_title, '['),100 - len(uploaded_image.link) - 10)], uploaded_image.link)))
+	print ('from: redd.it/%s, uploaded image at: %s' % (gw_post.name.split("_")[1], uploaded_image['link']))
 
-for i in range(int(sys.argv[1])): generate_image()
+twitter = login_to_twitter()
+imgur = login_to_imgur()
+reddit = login_to_reddit()
+
+generate_image()
